@@ -8,6 +8,7 @@ from textwrap import dedent
 import flask
 
 import flask_smorest
+from flask_smorest import abort
 import marshmallow as ma
 import marshmallow_sqlalchemy as msa
 from apispec.ext.marshmallow import MarshmallowPlugin
@@ -18,6 +19,7 @@ from bemserver_core.authorization import get_current_user
 from . import integrity_error
 from .authentication import auth
 from .ma_fields import Timezone
+from bemserver_core.database import db
 
 
 def resolver(schema):
@@ -157,20 +159,22 @@ class SQLCursorPage(flask_smorest.Page):
         return self.collection.count()
 
 
-AUTH_BLP_DESC = dedent("""Authentication operations
+AUTH_BLP_DESC = dedent(
+    """Authentication operations
 
 The following resources are used to get and refresh tokens. When authenticating, first
 get a couple of access (short-lived) and refresh (long-lived) tokens using login and
 password. When or before access token expires, refresh tokens to get a new pair of
 tokens with new expiration dates. If refresh token is expired, get a new pair of tokens
 using login and password again.
-""")
+"""
+)
 
 
 auth_blp = Blueprint(
     "Authentication",
     __name__,
-    url_prefix="/auth",
+    url_prefix="/api/v1/auth",
     description=AUTH_BLP_DESC,
 )
 
@@ -180,6 +184,21 @@ class GetJWTArgsSchema(Schema):
     password = ma.fields.String(validate=ma.validate.Length(1, 80), required=True)
 
 
+class GetTokenSchema(Schema):
+    email = ma.fields.Email(required=True)
+    token = ma.fields.String(validate=ma.validate.Length(6), required=True)
+
+
+class GetResetTokenArgsSchema(Schema):
+    email = ma.fields.Email(required=True)
+
+
+class ResetPasswordArgsSchema(Schema):
+    token = ma.fields.String(validate=ma.validate.Length(6), required=True)
+    password = ma.fields.String(validate=ma.validate.Length(1, 80), required=True)
+    email = ma.fields.Email(required=True)
+
+
 class GetJWTRespSchema(Schema):
     status = ma.fields.String(validate=ma.validate.OneOf(("success", "failure")))
     access_token = ma.fields.String()
@@ -187,7 +206,7 @@ class GetJWTRespSchema(Schema):
 
 
 @auth_blp.route("/token", methods=["POST"])
-@auth_blp.arguments(GetJWTArgsSchema)
+@auth_blp.arguments(GetTokenSchema)
 @auth_blp.response(
     200,
     GetJWTRespSchema,
@@ -224,8 +243,14 @@ def get_token(creds):
     No authentication header needed. Credentials must be passed in request payload.
     """
     user = auth.get_user_by_email(creds["email"])
-    if user is None or not user.check_password(creds["password"]) or not user.is_active:
-        return flask.jsonify({"status": "failure"})
+    print(creds["token"])
+    if (
+        user is None
+        or not auth.verify_auth_token(user, creds["token"], "LOGIN")
+        or not user.is_active
+    ):
+        abort(400, message="provide valid token")
+    # auth.send_token(user)
     return {
         "status": "success",
         "access_token": auth.encode(user).decode("utf-8"),
@@ -273,3 +298,78 @@ def refresh_token():
         "access_token": auth.encode(user).decode("utf-8"),
         "refresh_token": auth.encode(user, token_type="refresh").decode("utf-8"),
     }
+
+
+@auth_blp.route("/login", methods=["POST"])
+@auth_blp.arguments(GetJWTArgsSchema)
+def login(creds):
+    """
+    verify password and email
+
+    Keyword arguments:
+    argument -- description
+    Return: return_description
+    """
+    user = auth.get_user_by_email(creds["email"])
+    print(user.check_password(creds["password"]))
+    if user is None or not user.check_password(creds["password"]) or not user.is_active:
+        abort(400, message="email or password is incorrect")
+
+    token = auth.generate_auth_token(user, "LOGIN")
+
+    return {"status": "success", "message": "login token has been sent to your email"}
+
+
+@auth_blp.route("/reset", methods=["POST"])
+@auth_blp.arguments(ResetPasswordArgsSchema)
+def reset_user_password(creds):
+    """reset password
+
+    Keyword arguments:
+    argument -- description
+    Return: return_description
+    """
+    try:
+        user = auth.get_user_by_email(creds["email"])
+        if user:
+            token = auth.verify_auth_token(user, creds["token"], "RESET")
+            if token:
+                try:
+                    user = auth.get_user_by_email(creds["email"])
+                    user.set_password(creds["password"])
+                    db.session.add(user)
+                    db.session.commit()
+                    return {
+                        "status": "success",
+                        "message": "Password reset successfully",
+                    }, 200
+                except Exception as e:
+                    print(e)
+                    return {
+                        "status": "failed",
+                        "message": "failed to update password",
+                    }, 400
+        abort(400, "Reset Token is invalid")
+    except Exception as e:
+        abort(400, "Reset Token is invalid")
+
+
+@auth_blp.route("/reset/token", methods=["POST"])
+@auth_blp.arguments(GetResetTokenArgsSchema)
+def get_reset_password_token(identifier):
+    """request password reset token
+
+    Keyword arguments:
+    argument -- description
+    Return: return_description
+    """
+    user = auth.get_user_by_email(identifier["email"])
+    if user is None:
+        abort(400, message="email is incorrect or not found")
+
+    token = auth.generate_auth_token(user, "RESET")
+
+    return {
+        "status": "success",
+        "message": "Reset token has been sent to your email",
+    }, 200

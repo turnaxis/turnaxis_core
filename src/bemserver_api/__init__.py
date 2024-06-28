@@ -4,7 +4,7 @@ import importlib
 
 import flask
 from werkzeug.middleware.profiler import ProfilerMiddleware
-
+from dotenv import load_dotenv
 from bemserver_core import BEMServerCore
 
 from . import database
@@ -17,9 +17,13 @@ from .extensions import (  # noqa
     authentication,
 )
 from .resources import register_blueprints
+from .models import db
 
-API_VERSION = importlib.metadata.version("bemserver-api")
+# API_VERSION = importlib.metadata.version("bemserver-api")
+API_VERSION = "0.24.0"
 OPENAPI_VERSION = "3.1.0"
+
+# load_dotenv()
 
 
 def create_app():
@@ -28,7 +32,14 @@ def create_app():
     app.config.from_object("bemserver_api.settings.Config")
     app.config.from_envvar("BEMSERVER_API_SETTINGS_FILE", silent=True)
 
+    db.init_app(app)
     database.init_app(app)
+
+    with app.app_context():
+        db.create_all()
+
+    from .models import Token
+
     api = Api(
         spec_kwargs={
             "version": API_VERSION,
