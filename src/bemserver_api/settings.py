@@ -1,5 +1,10 @@
 """Default configuration"""
 
+from dotenv import load_dotenv
+import os
+
+# load_dotenv()
+
 
 class Config:
     """Default configuration"""
@@ -26,3 +31,7 @@ class Config:
 
     # Profiling
     PROFILE_DIR = ""
+
+    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
+
+    SQLALCHEMY_BINDS = {"db": os.getenv("SQLALCHEMY_DATABASE_URI")}
