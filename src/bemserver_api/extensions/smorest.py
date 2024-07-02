@@ -21,6 +21,7 @@ from .authentication import auth
 from .ma_fields import Timezone
 from bemserver_core.database import db
 
+from bemserver_core.model.users import ph
 
 def resolver(schema):
     # This is the default name resolver from apispec
@@ -336,7 +337,9 @@ def reset_user_password(creds):
             if token:
                 try:
                     user = auth.get_user_by_email(creds["email"])
-                    user.set_password(creds["password"])
+                  
+                    # user.set_password(creds["password"])
+                    user.password = ph.hash(creds["password"])
                     db.session.add(user)
                     db.session.commit()
                     return {
