@@ -6,6 +6,7 @@ import flask
 from werkzeug.middleware.profiler import ProfilerMiddleware
 from dotenv import load_dotenv
 from bemserver_core import BEMServerCore
+from .extensions.email import mail
 
 from . import database
 from .extensions import (  # noqa
@@ -24,7 +25,7 @@ API_VERSION = "0.24.0"
 OPENAPI_VERSION = "3.1.0"
 
 # load_dotenv()
-
+# mail = Mail()
 
 def create_app():
     """Create application"""
@@ -34,6 +35,8 @@ def create_app():
 
     db.init_app(app)
     database.init_app(app)
+    
+    mail.init_app(app)
 
     with app.app_context():
         db.create_all()

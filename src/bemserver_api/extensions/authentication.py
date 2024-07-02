@@ -197,7 +197,7 @@ class Auth:
                 appdb.session.add(new_token)
                 appdb.session.commit()
 
-            return new_token
+                return new_token.token
 
         except Exception as e:
             return {"error": e, "status": "failed"}

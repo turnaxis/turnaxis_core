@@ -35,3 +35,13 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
 
     SQLALCHEMY_BINDS = {"db": os.getenv("SQLALCHEMY_DATABASE_URI")}
+
+    ## MAIL SETTINGS
+
+    MAIL_SERVER = os.getenv("MAIL_SERVER")
+    MAIL_PORT = 587
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    

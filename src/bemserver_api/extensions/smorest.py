@@ -22,6 +22,8 @@ from .ma_fields import Timezone
 from bemserver_core.database import db
 
 from bemserver_core.model.users import ph
+from .tasks import send_email
+
 
 def resolver(schema):
     # This is the default name resolver from apispec
@@ -315,7 +317,11 @@ def login(creds):
         abort(400, message="email or password is incorrect")
 
     token = auth.generate_auth_token(user, "LOGIN")
-
+    send_email(
+        creds["email"],
+        "Login token",
+        f"Your login token is {token}. \n Your token will expire in 10 minutes",
+    )
     return {"status": "success", "message": "login token has been sent to your email"}
 
 
@@ -335,7 +341,7 @@ def reset_user_password(creds):
             if token:
                 try:
                     user = auth.get_user_by_email(creds["email"])
-                  
+
                     # user.set_password(creds["password"])
                     user.password = ph.hash(creds["password"])
                     db.session.add(user)
@@ -369,7 +375,11 @@ def get_reset_password_token(identifier):
         abort(400, message="email is incorrect or not found")
 
     token = auth.generate_auth_token(user, "RESET")
-
+    send_email(
+        identifier["email"],
+        "Password reset token",
+        f"Your password reset token is {token}. \n Your token will expire in 10 minutes",
+    )
     return {
         "status": "success",
         "message": "Reset token has been sent to your email",
