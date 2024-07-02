@@ -36,7 +36,7 @@ class Auth:
     """Authentication and authorization management"""
 
     HEADER = {"alg": "HS256"}
-    ACCESS_TOKEN_LIFETIME = 60 * 15  # 15 minutes
+    ACCESS_TOKEN_LIFETIME = 60 * 60 * 24  # 1 day
     REFRESH_TOKEN_LIFETIME = 60 * 60 * 24 * 60  # 2 months
 
     GET_USER_FUNCS = {

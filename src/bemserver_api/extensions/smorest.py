@@ -244,7 +244,6 @@ def get_token(creds):
     No authentication header needed. Credentials must be passed in request payload.
     """
     user = auth.get_user_by_email(creds["email"])
-    print(creds["token"])
     if (
         user is None
         or not auth.verify_auth_token(user, creds["token"], "LOGIN")
@@ -312,7 +311,6 @@ def login(creds):
     Return: return_description
     """
     user = auth.get_user_by_email(creds["email"])
-    print(user.check_password(creds["password"]))
     if user is None or not user.check_password(creds["password"]) or not user.is_active:
         abort(400, message="email or password is incorrect")
 
