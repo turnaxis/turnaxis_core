@@ -22,7 +22,7 @@ from .ma_fields import Timezone
 from bemserver_core.database import db
 
 from bemserver_core.model.users import ph
-from .tasks import send_email
+from ..tasks.tasks import send_email
 
 
 def resolver(schema):
@@ -252,7 +252,6 @@ def get_token(creds):
         or not user.is_active
     ):
         abort(400, message="provide valid token")
-    # auth.send_token(user)
     return {
         "status": "success",
         "access_token": auth.encode(user).decode("utf-8"),
@@ -317,7 +316,7 @@ def login(creds):
         abort(400, message="email or password is incorrect")
 
     token = auth.generate_auth_token(user, "LOGIN")
-    send_email(
+    send_email.delay(
         creds["email"],
         "Login token",
         f"Your login token is {token}. \n Your token will expire in 10 minutes",
@@ -375,7 +374,7 @@ def get_reset_password_token(identifier):
         abort(400, message="email is incorrect or not found")
 
     token = auth.generate_auth_token(user, "RESET")
-    send_email(
+    send_email.delay(
         identifier["email"],
         "Password reset token",
         f"Your password reset token is {token}. \n Your token will expire in 10 minutes",

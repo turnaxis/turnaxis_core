@@ -19,19 +19,19 @@ from .extensions import (  # noqa
 )
 from .resources import register_blueprints
 from .models import db
-
+from bemserver_core.celery import celery
+from .tasks import send_email
+from .celery import celery
 # API_VERSION = importlib.metadata.version("bemserver-api")
 API_VERSION = "0.24.0"
 OPENAPI_VERSION = "3.1.0"
-
-# load_dotenv()
-# mail = Mail()
 
 def create_app():
     """Create application"""
     app = flask.Flask(__name__)
     app.config.from_object("bemserver_api.settings.Config")
     app.config.from_envvar("BEMSERVER_API_SETTINGS_FILE", silent=True)
+    
 
     db.init_app(app)
     database.init_app(app)
@@ -42,7 +42,7 @@ def create_app():
         db.create_all()
 
     from .models import Token
-
+    
     api = Api(
         spec_kwargs={
             "version": API_VERSION,
@@ -52,8 +52,9 @@ def create_app():
     api.init_app(app)
     authentication.auth.init_app(app)
     register_blueprints(api)
-
+    celery.autodiscover_tasks()
     BEMServerCore()
+
 
     if profile_dir := app.config["PROFILE_DIR"]:
         app.wsgi_app = ProfilerMiddleware(
