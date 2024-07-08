@@ -21,7 +21,7 @@ from .resources import register_blueprints
 from .models import db
 from bemserver_core.celery import celery
 from .tasks import send_email
-from .celery import celery
+
 # API_VERSION = importlib.metadata.version("bemserver-api")
 API_VERSION = "0.24.0"
 OPENAPI_VERSION = "3.1.0"
