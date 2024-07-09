@@ -18,7 +18,7 @@ from .extensions import (  # noqa
     authentication,
 )
 from .resources import register_blueprints
-from .models import db
+from .models import db,Base
 from bemserver_core.celery import celery
 from .tasks import send_email
 from flask_cors import CORS
