@@ -21,17 +21,18 @@ from .resources import register_blueprints
 from .models import db
 from bemserver_core.celery import celery
 from .tasks import send_email
+from flask_cors import CORS
 
 # API_VERSION = importlib.metadata.version("bemserver-api")
 API_VERSION = "0.24.0"
 OPENAPI_VERSION = "3.1.0"
-
+load_dotenv()
 def create_app():
     """Create application"""
     app = flask.Flask(__name__)
     app.config.from_object("bemserver_api.settings.Config")
     app.config.from_envvar("BEMSERVER_API_SETTINGS_FILE", silent=True)
-    
+    CORS(app)
 
     db.init_app(app)
     database.init_app(app)
