@@ -8,7 +8,7 @@ from functools import wraps
 import sqlalchemy as sqla
 
 import flask
-
+from flask import current_app
 from flask_smorest import abort
 
 from authlib.jose import JsonWebToken
@@ -16,9 +16,11 @@ from authlib.jose.errors import ExpiredTokenError, JoseError
 
 from bemserver_core.authorization import BEMServerAuthorizationError, CurrentUser
 from bemserver_core.model.users import User
+from bemserver_core.model import Token
 
 from bemserver_api.database import db
 from bemserver_api.exceptions import BEMServerAPIAuthenticationError
+from .utils import generate_random_token, generate_expiry_date, get_current_date_time
 
 # https://docs.authlib.org/en/latest/jose/jwt.html#jwt-with-limited-algorithms
 jwt = JsonWebToken(["HS256"])
@@ -28,7 +30,7 @@ class Auth:
     """Authentication and authorization management"""
 
     HEADER = {"alg": "HS256"}
-    ACCESS_TOKEN_LIFETIME = 60 * 15  # 15 minutes
+    ACCESS_TOKEN_LIFETIME = 60 * 60 * 24  # 1 day
     REFRESH_TOKEN_LIFETIME = 60 * 60 * 24 * 60  # 2 months
 
     GET_USER_FUNCS = {
@@ -162,6 +164,79 @@ class Auth:
         if f:
             return decorator(f)
         return decorator
+    
+    @staticmethod
+    def generate_auth_token(user, token_type):
+        try:
+            with current_app.app_context():
+                existing_token = db.session.execute(
+                    sqla.select(Token).where(
+                        Token.user_id == user.id, Token.token_type == token_type
+                    )
+                ).scalar()
 
+                if existing_token:
+                    db.session.delete(existing_token)
+                    db.session.commit()
+
+                while True:
+                    token = generate_random_token(6)
+                    if (
+                        db.session.execute(
+                            sqla.select(Token).where(Token.token == token)
+                        ).scalar()
+                        is None
+                    ):
+                        break
+                new_token = Token(
+                    token=token,
+                    token_expiry=generate_expiry_date(10),
+                    token_type=token_type,
+                    user_id=user.id,
+                )
+                db.session.add(new_token)
+                db.session.commit()
+                return new_token.token
+
+        except Exception as e:
+            print(e)
+            return {"error": e, "status": "failed"}
+
+    @staticmethod
+    def verify_auth_token(user, token, token_type):
+        try:
+            with current_app.app_context():
+                token = db.session.execute(
+                    sqla.select(Token).where(
+                        Token.user_id == user.id,
+                        Token.token_type == token_type,
+                        Token.token == token,
+                    )
+                ).scalar()
+                if token and token.token_expiry > get_current_date_time():
+                    print(user)
+                    db.session.delete(token)
+                    db.session.commit()
+                    db.session.refresh(user)
+                    return user
+
+                return False
+        except Exception:
+            raise Exception
+
+    @staticmethod
+    def update_password(user, password):
+        try:
+            with current_app.app_context():
+                user = db.session.query(User).filter_by(email=user.email).first()
+                print(user)
+                print(user)
+                user.set_password(password)
+                print(user)
+
+                db.session.add(user)
+                db.session.commit()
+        except Exception as e:
+            return "failed to update"
 
 auth = Auth()

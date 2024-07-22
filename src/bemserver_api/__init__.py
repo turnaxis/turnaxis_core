@@ -4,6 +4,14 @@ import importlib
 
 import flask
 from werkzeug.middleware.profiler import ProfilerMiddleware
+import sys
+import os
+
+# Get the absolute path of the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# Add the submodule's path to sys.path
+sys.path.insert(0, os.path.join(parent_dir))
 
 from bemserver_core import BEMServerCore
 
@@ -18,7 +26,8 @@ from .extensions import (  # noqa
 )
 from .resources import register_blueprints
 
-API_VERSION = importlib.metadata.version("bemserver-api")
+# API_VERSION = importlib.metadata.version("bemserver-api")
+API_VERSION = "0.24.0"
 OPENAPI_VERSION = "3.1.0"
 
 

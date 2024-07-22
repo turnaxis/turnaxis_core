@@ -1,0 +1,16 @@
+#!/home/frank/turnaxis/second/turnaxis_core/.venv/bin/python3
+# -*- coding: utf-8 -*-
+import re
+import sys
+import os
+
+# Get the absolute path of the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Add the submodule's path to sys.path
+sys.path.insert(0, os.path.join(parent_dir))
+
+from bemserver_core.commands import db_downgrade_cmd
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(db_downgrade_cmd())
