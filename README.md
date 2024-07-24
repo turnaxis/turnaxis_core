@@ -53,7 +53,7 @@ alembic -c bemserver_core/alembic.ini upgrade head
 create user
 
 ```
- utils/bemserver_create_user --name <> --email <> --password <>
+python3 utils/bemserver_create_user --name <> --email <> --password <>
 ```
 
 run the flask app
