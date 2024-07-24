@@ -31,6 +31,7 @@ MAIL_PORT = <>
 MAIL_USERNAME = <>
 MAIL_PASSWORD = <>
 MAIL_SENDER = <>
+FRONTENDURL = <>
 ```
 
 make sure you have an existing database for the connection you have provided

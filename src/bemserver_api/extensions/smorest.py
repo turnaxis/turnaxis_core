@@ -22,7 +22,10 @@ from . import integrity_error
 from .authentication import auth
 from .ma_fields import Timezone
 from bemserver_core.model.users import ph
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def resolver(schema):
     # This is the default name resolver from apispec
@@ -375,7 +378,7 @@ def get_reset_password_token(identifier):
     smtp_send_email.delay(
         identifier["email"],
         "Password reset token",
-        f"Your password reset token is {token}. \n Your token will expire in 10 minutes",
+        f"Your password reset token is {token}. \n Follow the link below to set a new password \n {os.getenv('FRONTENDURL')}?token={token}&email={identifier['email']}  \n Your token will expire in 10 minutes"
     )
     return {
         "status": "success",
