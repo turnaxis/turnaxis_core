@@ -6,7 +6,7 @@ import flask
 from werkzeug.middleware.profiler import ProfilerMiddleware
 import sys
 import os
-
+from flask_cors import CORS
 # Get the absolute path of the parent directory
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -36,7 +36,7 @@ def create_app():
     app = flask.Flask(__name__)
     app.config.from_object("bemserver_api.settings.Config")
     app.config.from_envvar("BEMSERVER_API_SETTINGS_FILE", silent=True)
-
+    CORS(app)
     database.init_app(app)
     api = Api(
         spec_kwargs={
