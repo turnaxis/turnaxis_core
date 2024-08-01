@@ -1,9 +1,10 @@
 import marshmallow as ma
 import marshmallow_sqlalchemy as msa
 
-from bemserver_api import Schema,AutoSchema
-from bemserver_core.model import Device
+from bemserver_api import Schema, AutoSchema
+from bemserver_core.model import Device, DeviceCategory, DeviceByTimeseries
 from bemserver_core.model.device import DeviceStatus
+
 
 class DeviceGetQueryArgsSchema(Schema):
     name = ma.fields.Str()
@@ -24,3 +25,11 @@ class DeviceSchema(AutoSchema):
     id = msa.auto_field(dump_only=True)
     name = msa.auto_field(validate=ma.validate.Length(1, 50))
     status = ma.fields.Enum(DeviceStatus)
+
+
+class DeviceCategorySchema(AutoSchema):
+    class Meta(AutoSchema.Meta):
+        model = DeviceCategory
+
+    id = msa.auto_field(dump_only=True)
+    name = msa.auto_field(validate=ma.validate.Length(1, 50))
