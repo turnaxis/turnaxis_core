@@ -2,12 +2,12 @@ from flask.views import MethodView
 
 from flask_smorest import abort
 
-from bemserver_core.model import Device, DeviceCategory
+from bemserver_core.model import Device, DeviceCategory,DeviceByTimeseries
 from bemserver_core.model.device import DeviceStatus
 from bemserver_api import Blueprint
 from bemserver_api.database import db
 
-from .schema import DeviceSchema, DeviceGetQueryArgsSchema, DeviceCategorySchema
+from .schema import DeviceSchema, DeviceGetQueryArgsSchema, DeviceCategorySchema, DeviceByTimeSeriesSchema
 
 blp = Blueprint(
     "Device",
@@ -55,5 +55,26 @@ class DeviceCategoryViews(MethodView):
     def post(self, new_item):
         """Add new device category"""
         item = DeviceCategory.new(**new_item)
+        db.session.commit()
+        return item
+
+
+@blp.route("/devicebytimeseries")
+class DeviceByTimeseriesViews(MethodView):
+    @blp.login_required
+    @blp.etag
+    @blp.response(200, DeviceByTimeSeriesSchema(many=True))
+    def get(self):
+        """List devices by timeseries"""
+        return DeviceByTimeseries.get()
+
+    @blp.login_required
+    @blp.etag
+    @blp.arguments(DeviceByTimeSeriesSchema)
+    @blp.response(201, DeviceByTimeSeriesSchema)
+    @blp.catch_integrity_error
+    def post(self, new_item):
+        """Add new device by timeseries mapping"""
+        item = DeviceByTimeseries.new(**new_item)
         db.session.commit()
         return item

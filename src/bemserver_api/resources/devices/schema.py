@@ -33,3 +33,8 @@ class DeviceCategorySchema(AutoSchema):
 
     id = msa.auto_field(dump_only=True)
     name = msa.auto_field(validate=ma.validate.Length(1, 50))
+
+
+class DeviceByTimeSeriesSchema(AutoSchema):
+    class Meta(AutoSchema.Meta):
+        model = DeviceByTimeseries
