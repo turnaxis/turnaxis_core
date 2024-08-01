@@ -5,6 +5,7 @@ from textwrap import dedent
 import flask
 
 from flask_smorest import abort
+import sqlalchemy as sqla
 
 from bemserver_core.database import db
 from bemserver_core.exceptions import (
@@ -13,7 +14,15 @@ from bemserver_core.exceptions import (
     TimeseriesNotFoundError,
 )
 from bemserver_core.input_output import tsdcsvio, tsdio, tsdjsonio
-from bemserver_core.model import Campaign, Timeseries, TimeseriesDataState, UserGroupByCampaign, UserGroup, User,UserByUserGroup
+from bemserver_core.model import (
+    Campaign,
+    Timeseries,
+    TimeseriesDataState,
+    UserGroupByCampaign,
+    UserGroup,
+    User,
+    UserByUserGroup,
+)
 from bemserver_core.authorization import get_current_user
 from bemserver_core.database import db
 from bemserver_api import Blueprint
@@ -235,12 +244,16 @@ def get_aggregate_for_campaign(args):
     # Execute the query and fetch results
     campaign_id = query.first().id
 
-
     # Execute the query
-    # result = db.session.execute(query)
-    # print(result)
-    timeseries = Timeseries.get(campaign_id=campaign_id)
-    print(timeseries)
+
+    timeseries_query = db.session.query(Timeseries).filter(
+        Timeseries.campaign_id == campaign_id
+    )
+    timeseries = timeseries_query.all()
+
+    for t in timeseries:
+        print(t.id)
+
     data_state = _get_data_state(args["data_state"])
 
     if mime_type == "text/csv":
@@ -258,6 +271,84 @@ def get_aggregate_for_campaign(args):
         )
     else:
         resp = tsdjsonio.export_json_bucket_combined(
+            args["start_time"],
+            args["end_time"],
+            timeseries,
+            data_state,
+            args["bucket_width_value"],
+            args["bucket_width_unit"],
+            args["aggregation"],
+            convert_to=args.get("convert_to"),
+            timezone=args["timezone"],
+            col_label="name",
+        )
+        # print(resp)
+    return flask.Response(resp, mimetype=mime_type)
+
+
+@blp.route("/aggregate_by_location", methods=("GET",))
+@blp.login_required
+@blp.arguments(TimeseriesDataGetByNameAggregateQueryArgsSchema, location="query")
+@blp.response(
+    200, content_type="application/json", example=PAYLOAD_BY_NAME_JSON_EXAMPLE
+)
+@blp.alt_response(200, content_type="text/csv", example=PAYLOAD_BY_NAME_CSV_EXAMPLE)
+def get_aggregate_for_campaign_by_location(args):
+    """Get aggregated timeseries data for a given campaign by location
+
+    Returns data in either JSON or CSV format.
+
+    JSON: each key is a timestamp name as string. For each timeseries, values
+    are passed a {timestamp: value} mappings.
+
+    CSV: the first column is the timestamp as timezone aware datetime and each
+    other column is a timeseries data. Column headers are timeseries names.
+    """
+    mime_type = flask.request.headers.get("Accept", "application/json")
+
+    from sqlalchemy.orm import aliased
+    from sqlalchemy import select
+
+    # Build the query
+    query = (
+        db.session.query(Campaign)
+        .join(UserGroupByCampaign, UserGroupByCampaign.campaign_id == Campaign.id)
+        .join(UserGroup, UserGroupByCampaign.user_group_id == UserGroup.id)
+        .join(UserByUserGroup, UserGroup.id == UserByUserGroup.user_group_id)
+        .join(User, UserByUserGroup.user_id == User.id)
+        .filter(User.id == get_current_user().id)
+    )
+
+    # Execute the query and fetch results
+    campaign_id = query.first().id
+    # Execute the query
+    # result = db.session.execute(query)
+    # print(result)
+    timeseries_query = db.session.query(Timeseries).filter(
+        Timeseries.campaign_id == campaign_id
+    )
+    timeseries = timeseries_query.all()
+
+    for t in timeseries:
+        print(t.id)
+
+    data_state = _get_data_state(args["data_state"])
+
+    if mime_type == "text/csv":
+        resp = tsdcsvio.export_csv_bucket(
+            args["start_time"],
+            args["end_time"],
+            timeseries,
+            data_state,
+            args["bucket_width_value"],
+            args["bucket_width_unit"],
+            args["aggregation"],
+            convert_to=args.get("convert_to"),
+            timezone=args["timezone"],
+            col_label="name",
+        )
+    else:
+        resp = tsdjsonio.export_json_aggregate_by_location(
             args["start_time"],
             args["end_time"],
             timeseries,
