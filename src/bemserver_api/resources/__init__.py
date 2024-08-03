@@ -61,6 +61,7 @@ from . import (
     zone_properties,
     zone_property_data,
     zones,
+    teams,
 )
 
 MODULES = (
@@ -124,6 +125,7 @@ MODULES = (
     st_check_outliers_by_campaigns,
     st_download_weather_data_by_sites,
     st_download_weather_forecast_data_by_sites,
+    teams,
 )
 
 
