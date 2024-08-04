@@ -360,5 +360,4 @@ def get_aggregate_for_campaign_by_location(args):
             timezone=args["timezone"],
             col_label="name",
         )
-        # print(resp)
     return flask.Response(resp, mimetype=mime_type)
