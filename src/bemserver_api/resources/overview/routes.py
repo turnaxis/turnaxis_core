@@ -6,6 +6,8 @@ import flask
 
 from flask_smorest import abort
 import sqlalchemy as sqla
+from sqlalchemy.orm import aliased
+from sqlalchemy import select
 
 from bemserver_core.database import db
 from bemserver_core.exceptions import (
@@ -40,6 +42,7 @@ from .schemas import (
     TimeseriesDataStatsByIDSchema,
     TimeseriesDataStatsByNameSchema,
 )
+
 
 STATS_BY_ID_EXAMPLE = dedent(
     """\
@@ -212,25 +215,6 @@ def get_aggregate_for_campaign(args):
     """
     mime_type = flask.request.headers.get("Accept", "application/json")
 
-    # campaign = Campaign.get_by_id(campaign_id) or abort(404)
-    # timeseries = _get_many_timeseries_by_name(campaign, args["timeseries"])
-    print(get_current_user())
-    # query = select([Campaign.id]).select_from(
-    # UserGroupByCampaign.__table__.join(
-    #     UserGroup.__table__,
-    #     UserGroupByCampaign.usergroup_id == UserGroup.id
-    # ).join(
-    #     Campaign.__table__,
-    #     UserGroupByCampaign.campaign_id == Campaign.id
-    # ).join(
-    #     User.__table__,
-    #     UserGroup.user_id == User.id
-    # )
-    # ).where(User.email == get_current_user.email)
-
-    from sqlalchemy.orm import aliased
-    from sqlalchemy import select
-
     # Build the query
     query = (
         db.session.query(Campaign)
@@ -250,9 +234,6 @@ def get_aggregate_for_campaign(args):
         Timeseries.campaign_id == campaign_id
     )
     timeseries = timeseries_query.all()
-
-    for t in timeseries:
-        print(t.id)
 
     data_state = _get_data_state(args["data_state"])
 
@@ -306,9 +287,6 @@ def get_aggregate_for_campaign_by_location(args):
     """
     mime_type = flask.request.headers.get("Accept", "application/json")
 
-    from sqlalchemy.orm import aliased
-    from sqlalchemy import select
-
     # Build the query
     query = (
         db.session.query(Campaign)
@@ -321,16 +299,11 @@ def get_aggregate_for_campaign_by_location(args):
 
     # Execute the query and fetch results
     campaign_id = query.first().id
-    # Execute the query
-    # result = db.session.execute(query)
-    # print(result)
+
     timeseries_query = db.session.query(Timeseries).filter(
         Timeseries.campaign_id == campaign_id
     )
     timeseries = timeseries_query.all()
-
-    for t in timeseries:
-        print(t.id)
 
     data_state = _get_data_state(args["data_state"])
 
