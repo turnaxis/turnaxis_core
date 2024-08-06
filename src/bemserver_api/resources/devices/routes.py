@@ -7,7 +7,7 @@ from bemserver_core.model.device import DeviceStatus
 from bemserver_api import Blueprint
 from bemserver_api.database import db
 
-from .schema import DeviceSchema, DeviceGetQueryArgsSchema, DeviceCategorySchema, DeviceByTimeSeriesSchema
+from .schema import DeviceSchema, DeviceGetQueryArgsSchema, DeviceCategorySchema, DeviceByTimeSeriesSchema, DeviceResponseSchema
 
 blp = Blueprint(
     "Device",
@@ -21,7 +21,7 @@ blp = Blueprint(
 class DevicesViews(MethodView):
     @blp.login_required
     @blp.etag
-    @blp.response(200, DeviceSchema(many=True))
+    @blp.response(200, DeviceResponseSchema(many=True))
     def get(self):
         """List devices"""
         return Device.get()
