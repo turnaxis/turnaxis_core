@@ -18,7 +18,7 @@ class MemberSchema(AutoSchema):
     class Meta(AutoSchema.Meta):
         model = Member
 
-    id = msa.auto_field(dump_only=True)
+    id = msa.auto_field(dump_only=False)
     first_name = msa.auto_field(validate=ma.validate.Length(1, 80))
     last_name = msa.auto_field(validate=ma.validate.Length(1, 80))
     permission_level = msa.auto_field(validate=ma.validate.OneOf(["ADMIN", "EDITOR", "VIEWER"]))
@@ -35,6 +35,7 @@ class TeamSchema(AutoSchema):
     name = msa.auto_field(validate=ma.validate.Length(1, 80))
     user_group_id = msa.auto_field()
     user_group = ma.fields.Nested(UserGroupSchema, dump_only=True)
+    members = ma.fields.Nested(MemberSchema, many=True, dump_only=True)
 
 class TeamQueryArgsSchema(Schema):
     sort = ma_fields.SortField(("name",))
