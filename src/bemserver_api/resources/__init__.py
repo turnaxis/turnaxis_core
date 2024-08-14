@@ -63,7 +63,8 @@ from . import (
     zones,
     teams,
     overview,
-    devices
+    devices,
+    alert,
 )
 
 MODULES = (
@@ -129,7 +130,8 @@ MODULES = (
     st_download_weather_forecast_data_by_sites,
     teams,
     overview,
-    devices
+    devices,
+    alert,
 )
 
 
