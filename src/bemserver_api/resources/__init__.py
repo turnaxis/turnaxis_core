@@ -1,5 +1,6 @@
 """Resources initialization"""
 
+from bemserver_api.resources import alerts
 from . import (
     about,
     analysis,
@@ -64,7 +65,7 @@ from . import (
     teams,
     overview,
     devices,
-    alert,
+    alerts,
 )
 
 MODULES = (
@@ -131,7 +132,7 @@ MODULES = (
     teams,
     overview,
     devices,
-    alert,
+    alerts,
 )
 
 

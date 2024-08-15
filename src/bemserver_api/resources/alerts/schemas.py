@@ -2,7 +2,7 @@ import marshmallow as ma
 import marshmallow_sqlalchemy as msa
 
 from bemserver_api import AutoSchema
-from bemserver_core.model.alerts import Alert , AlertType, Device, User
+from bemserver_core.model.alerts import Alert , AlertType
 
 class AlertSchema(AutoSchema):
     class Meta(AutoSchema.Meta):
