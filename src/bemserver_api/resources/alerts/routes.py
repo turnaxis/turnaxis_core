@@ -1,9 +1,9 @@
 from flask.views import MethodView
 from flask_smorest import abort
-from bemserver_core.model.alerts import Alert
+from bemserver_core.model.alerts import Alert, Threshold
 from bemserver_api import Blueprint
 from bemserver_api.database import db
-from .schemas import AlertSchema, AlertQueryArgsSchema
+from .schemas import AlertSchema, AlertQueryArgsSchema, ThresholdSchema
 import marshmallow as ma
 
 
@@ -71,18 +71,19 @@ class AlertByIdViews(MethodView):
         item.delete()
         db.session.commit()
 
-    @blp.route("/<int:item_id>/set_threshold", methods=("PUT",))
+@blp.route("/<int:item_id>/set_threshold", methods=("PUT",))
+class SetThreshold(MethodView):
     @blp.login_required
     @blp.etag
-    @blp.arguments(ma.Schema.from_dict({"threshold": ma.fields.Float(required=True)}))
+    @blp.arguments(ThresholdSchema)
     @blp.response(204)
-    def set_threshold(args, item_id):
+    def put(self, args, item_id):
         """Set a custom threshold for a device"""
-        item = Alert.get_by_id(item_id)
-        if item is None:
-            abort(404)
-        blp.check_etag(item, AlertSchema)
-        item.threshold = args["threshold"]
+        threshold = Threshold.get_by_device_user(args["device_id"], args["user_id"])
+        if threshold is None:
+            threshold = Threshold.new(**args)
+        else:
+            threshold.update(**args)
         db.session.commit()
-        blp.set_etag(item, AlertSchema)
+        return "", 204
 
