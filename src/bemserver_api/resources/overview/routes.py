@@ -221,7 +221,7 @@ def get_aggregate_for_campaign(args):
         .join(UserGroupByCampaign, UserGroupByCampaign.campaign_id == Campaign.id)
         .join(UserGroup, UserGroupByCampaign.user_group_id == UserGroup.id)
         .join(UserByUserGroup, UserGroup.id == UserByUserGroup.user_group_id)
-        .join(User, UserGroup.id == User.id)
+        .join(User, UserByUserGroup.user_id == User.id)
         .filter(User.id == get_current_user().id)
     )
 
