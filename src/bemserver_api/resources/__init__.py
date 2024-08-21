@@ -1,6 +1,6 @@
 """Resources initialization"""
 
-from bemserver_api.resources import alerts
+from bemserver_api.resources import alerts, thresholds
 from . import (
     about,
     analysis,
@@ -66,6 +66,7 @@ from . import (
     overview,
     devices,
     alerts,
+    thresholds,
 )
 
 MODULES = (
@@ -133,6 +134,7 @@ MODULES = (
     overview,
     devices,
     alerts,
+    thresholds,
 )
 
 
