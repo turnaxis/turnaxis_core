@@ -3,7 +3,7 @@
 import marshmallow as ma
 import marshmallow_sqlalchemy as msa
 
-from bemserver_core.model import User
+from bemserver_core.model import User,Campaign
 
 from bemserver_api import AutoSchema, Schema
 from bemserver_api.extensions import ma_fields
@@ -32,3 +32,16 @@ class UserQueryArgsSchema(Schema):
 
 class BooleanValueSchema(Schema):
     value = ma.fields.Boolean()
+
+
+class CampaignSchema(AutoSchema):
+    class Meta:
+        model = Campaign
+        load_instance = True
+
+    id = msa.auto_field(dump_only=True)
+    name = msa.auto_field()
+
+
+class ProfileSchema(UserSchema):
+    company = ma.fields.Nested(CampaignSchema)

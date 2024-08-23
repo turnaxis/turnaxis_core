@@ -4,12 +4,26 @@ from flask.views import MethodView
 
 from flask_smorest import abort
 
-from bemserver_core.model import User
+from bemserver_core.model import (
+    User,
+    Campaign,
+    UserGroup,
+    UserGroupByCampaign,
+    UserByUserGroup,
+)
+
 
 from bemserver_api import Blueprint
 from bemserver_api.database import db
+from bemserver_core.authorization import get_current_user
 
-from .schemas import BooleanValueSchema, UserQueryArgsSchema, UserSchema
+from .schemas import (
+    BooleanValueSchema,
+    UserQueryArgsSchema,
+    UserSchema,
+    ProfileSchema,
+    CampaignSchema,
+)
 
 blp = Blueprint(
     "User", __name__, url_prefix="/users", description="Operations on users"
@@ -113,4 +127,30 @@ def set_active(args, item_id):
     blp.check_etag(item, UserSchema)
     item.is_active = args["value"]
     db.session.commit()
-    blp.set_etag(item, UserSchema)
+    blp.set_etag(item, ProfileSchema)
+
+
+@blp.route("/users/profile")
+class ProfileViews(MethodView):
+    @blp.login_required
+    @blp.etag
+    # @blp.arguments(UserQueryArgsSchema, location="query")
+    @blp.response(200, ProfileSchema)
+    def get(self):
+        """Get current user profile"""
+        user_id = get_current_user().id
+        query = (
+            db.session.query(Campaign)
+            .join(UserGroupByCampaign, UserGroupByCampaign.campaign_id == Campaign.id)
+            .join(UserGroup, UserGroupByCampaign.user_group_id == UserGroup.id)
+            .join(UserByUserGroup, UserGroup.id == UserByUserGroup.user_group_id)
+            .join(User, UserByUserGroup.user_id == User.id)
+            .filter(User.id == get_current_user().id)
+        )
+        campaign = query.first()
+        user = User.get_by_id(user_id)
+        user_data = ProfileSchema().dump(user)
+        campaign_schema = CampaignSchema(many=False)
+        campaign_data = campaign_schema.dump(campaign)
+        user_data["company"] = campaign_data
+        return user_data
