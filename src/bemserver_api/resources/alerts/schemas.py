@@ -15,6 +15,9 @@ class AlertSchema(AutoSchema):
     timestamp = msa.auto_field()
     device_id = msa.auto_field()
     user_id = msa.auto_field()
+    resolved = msa.auto_field()
+    resolved_at = msa.auto_field(dump_only=True)
+    resolved_by = msa.auto_field(dump_only=True)
 
 class AlertQueryArgsSchema(ma.Schema):
     device_id = ma.fields.Int()
@@ -22,4 +25,5 @@ class AlertQueryArgsSchema(ma.Schema):
     alert_type = ma.fields.Enum(AlertType)
     threshold = ma.fields.Float()
     actual_consumption = ma.fields.Float()
+    resolved = ma.fields.Bool()
 

@@ -31,6 +31,26 @@ class AlertViews(MethodView):
         item = Alert.new(**new_item)
         db.session.commit()
         return item
+    
+@blp.route("/active")
+class ActiveAlertsViews(MethodView):
+    @blp.login_required
+    @blp.etag
+    @blp.arguments(AlertQueryArgsSchema, location="query")
+    @blp.response(200, AlertSchema(many=True))
+    def get(self, args):
+        """List active alerts"""
+        return Alert.get_active_alerts(**args)
+    
+@blp.route("/resolved")
+class ResolvedAlertsViews(MethodView):
+    @blp.login_required
+    @blp.etag
+    @blp.arguments(AlertQueryArgsSchema, location="query")
+    @blp.response(200, AlertSchema(many=True))
+    def get(self, args):
+        """List resolved alerts"""
+        return Alert.get_resolved_alerts(**args)
 
 @blp.route("/<int:item_id>")
 class AlertByIdViews(MethodView):
@@ -70,4 +90,6 @@ class AlertByIdViews(MethodView):
         blp.check_etag(item, AlertSchema)
         item.delete()
         db.session.commit()
+
+
 
