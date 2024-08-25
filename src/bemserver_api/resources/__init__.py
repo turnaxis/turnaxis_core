@@ -1,5 +1,6 @@
 """Resources initialization"""
 
+from bemserver_api.resources import alerts, thresholds
 from . import (
     about,
     analysis,
@@ -63,7 +64,9 @@ from . import (
     zones,
     teams,
     overview,
-    devices
+    devices,
+    alerts,
+    thresholds,
 )
 
 MODULES = (
@@ -129,7 +132,9 @@ MODULES = (
     st_download_weather_forecast_data_by_sites,
     teams,
     overview,
-    devices
+    devices,
+    alerts,
+    thresholds,
 )
 
 
