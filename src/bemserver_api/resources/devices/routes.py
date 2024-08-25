@@ -78,3 +78,19 @@ class DeviceByTimeseriesViews(MethodView):
         item = DeviceByTimeseries.new(**new_item)
         db.session.commit()
         return item
+
+
+@blp.route("/<int:id>")
+class DeviceViews(MethodView):
+    @blp.login_required
+    @blp.etag
+    @blp.response(200, DeviceResponseSchema)
+    def get(self, id):
+        """Get device by id"""
+        item = Device.get_by_id(id)
+
+        if item is None:
+            abort(404)
+
+        return item
+    

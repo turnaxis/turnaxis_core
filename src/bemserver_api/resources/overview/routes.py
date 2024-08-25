@@ -221,7 +221,7 @@ def get_aggregate_for_campaign(args):
         .join(UserGroupByCampaign, UserGroupByCampaign.campaign_id == Campaign.id)
         .join(UserGroup, UserGroupByCampaign.user_group_id == UserGroup.id)
         .join(UserByUserGroup, UserGroup.id == UserByUserGroup.user_group_id)
-        .join(User, UserGroup.id == User.id)
+        .join(User, UserByUserGroup.user_id == User.id)
         .filter(User.id == get_current_user().id)
     )
 
@@ -322,6 +322,74 @@ def get_aggregate_for_campaign_by_location(args):
         )
     else:
         resp = tsdjsonio.export_json_aggregate_by_location(
+            args["start_time"],
+            args["end_time"],
+            timeseries,
+            data_state,
+            args["bucket_width_value"],
+            args["bucket_width_unit"],
+            args["aggregation"],
+            convert_to=args.get("convert_to"),
+            timezone=args["timezone"],
+            col_label="name",
+        )
+    return flask.Response(resp, mimetype=mime_type)
+
+@blp.route("/aggregate_by_device_category", methods=("GET",))
+@blp.login_required
+@blp.arguments(TimeseriesDataGetByNameAggregateQueryArgsSchema, location="query")
+@blp.response(
+    200, content_type="application/json", example=PAYLOAD_BY_NAME_JSON_EXAMPLE
+)
+@blp.alt_response(200, content_type="text/csv", example=PAYLOAD_BY_NAME_CSV_EXAMPLE)
+def get_aggregate_for_campaign_by_device_category(args):
+    """Get aggregated timeseries data for a given campaign by device category
+
+    Returns data in either JSON or CSV format.
+
+    JSON: each key is a timestamp name as string. For each timeseries, values
+    are passed a {timestamp: value} mappings.
+
+    CSV: the first column is the timestamp as timezone aware datetime and each
+    other column is a timeseries data. Column headers are timeseries names.
+    """
+    mime_type = flask.request.headers.get("Accept", "application/json")
+
+    # Build the query
+    query = (
+        db.session.query(Campaign)
+        .join(UserGroupByCampaign, UserGroupByCampaign.campaign_id == Campaign.id)
+        .join(UserGroup, UserGroupByCampaign.user_group_id == UserGroup.id)
+        .join(UserByUserGroup, UserGroup.id == UserByUserGroup.user_group_id)
+        .join(User, UserByUserGroup.user_id == User.id)
+        .filter(User.id == get_current_user().id)
+    )
+
+    # Execute the query and fetch results
+    campaign_id = query.first().id
+
+    timeseries_query = db.session.query(Timeseries).filter(
+        Timeseries.campaign_id == campaign_id
+    )
+    timeseries = timeseries_query.all()
+
+    data_state = _get_data_state(args["data_state"])
+
+    if mime_type == "text/csv":
+        resp = tsdcsvio.export_csv_bucket(
+            args["start_time"],
+            args["end_time"],
+            timeseries,
+            data_state,
+            args["bucket_width_value"],
+            args["bucket_width_unit"],
+            args["aggregation"],
+            convert_to=args.get("convert_to"),
+            timezone=args["timezone"],
+            col_label="name",
+        )
+    else:
+        resp = tsdjsonio.export_json_aggregate_by_device_category(
             args["start_time"],
             args["end_time"],
             timeseries,
