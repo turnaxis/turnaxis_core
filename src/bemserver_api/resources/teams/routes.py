@@ -77,9 +77,22 @@ class TeamByIdViews(MethodView):
         blp.check_etag(item, TeamSchema)
         item.delete()
         db.session.commit()
+        
 
 @blp.route("/<int:team_id>/members")
 class MemberViews(MethodView):
+    @blp.login_required
+    @blp.etag
+    @blp.response(200, MemberSchema(many=True))
+    def get(self, team_id):
+        """List all members of a specific team"""
+        team = Team.get_by_id(team_id)
+        if team is None:
+            abort(404, message="Team not found")
+        members = db.session.query(Member).filter_by(team_id=team_id).all()
+
+        return members
+
     @blp.login_required
     @blp.etag
     @blp.arguments(MemberSchema)
@@ -89,7 +102,7 @@ class MemberViews(MethodView):
         """Add a member to a team"""
         team = Team.get_by_id(team_id)
         if team is None:
-            abort(404)
+            abort(404, message="Team not found")
         new_item["team_id"] = team_id
         item = Member.new(**new_item)
         db.session.commit()
@@ -136,3 +149,17 @@ class MemberByIdViews(MethodView):
         member.delete()
         db.session.commit()
  
+@blp.route("/members/<int:member_id>/set-admin")
+class SetAdminView(MethodView):
+    @blp.login_required
+    @blp.etag
+    @blp.response(200, MemberSchema)
+    def post(self, member_id):
+        """Set a member as admin"""
+        member = Member.get_by_id(member_id)
+        if member is None:
+            abort(404, message="Member not found")
+        
+        member.permission_level = "ADMIN"
+        db.session.commit()
+        return member
