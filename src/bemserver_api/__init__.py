@@ -8,10 +8,13 @@ import sys
 import os
 from flask_cors import CORS
 # Get the absolute path of the parent directory
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..",".."))
 
 # Add the submodule's path to sys.path
 sys.path.insert(0, os.path.join(parent_dir))
+
+custom_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(custom_dir))
 
 from bemserver_core import BEMServerCore
 
@@ -56,3 +59,6 @@ def create_app():
         )
 
     return app
+
+
+app = create_app()
