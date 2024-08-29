@@ -14,7 +14,7 @@ from .schemas import UserGroupByCampaignQueryArgsSchema, UserGroupByCampaignSche
 blp = Blueprint(
     "UserGroupByCampaign",
     __name__,
-    url_prefix="/user_groups_by_campaigns",
+    url_prefix="/api/v1/user_groups_by_campaigns",
     description="Operations on user group x campaign associations",
 )
 

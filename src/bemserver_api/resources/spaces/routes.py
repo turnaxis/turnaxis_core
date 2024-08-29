@@ -12,7 +12,7 @@ from bemserver_api.database import db
 from .schemas import SpacePutSchema, SpaceQueryArgsSchema, SpaceSchema
 
 blp = Blueprint(
-    "Space", __name__, url_prefix="/spaces", description="Operations on spaces"
+    "Space", __name__, url_prefix="/api/v1/spaces", description="Operations on spaces"
 )
 
 

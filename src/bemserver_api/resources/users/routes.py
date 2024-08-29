@@ -26,7 +26,7 @@ from .schemas import (
 )
 
 blp = Blueprint(
-    "User", __name__, url_prefix="/users", description="Operations on users"
+    "User", __name__, url_prefix="/api/v1/users", description="Operations on users"
 )
 
 

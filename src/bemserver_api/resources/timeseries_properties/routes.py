@@ -18,7 +18,7 @@ from .schemas import (
 blp = Blueprint(
     "TimeseriesProperty",
     __name__,
-    url_prefix="/timeseries_properties",
+    url_prefix="/api/v1/timeseries_properties",
     description="Operations on timeseries properties",
 )
 

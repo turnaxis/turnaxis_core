@@ -20,7 +20,7 @@ from .schemas import (
 blp = Blueprint(
     "ST_CleanupByCampaign",
     __name__,
-    url_prefix="/st_cleanups_by_campaigns",
+    url_prefix="/api/v1/st_cleanups_by_campaigns",
     description="Operations on cleanup scheduled task x campaign associations",
 )
 

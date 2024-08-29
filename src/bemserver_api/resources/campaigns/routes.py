@@ -12,7 +12,7 @@ from bemserver_api.database import db
 from .schemas import CampaignQueryArgsSchema, CampaignSchema
 
 blp = Blueprint(
-    "Campaign", __name__, url_prefix="/campaigns", description="Operations on campaigns"
+    "Campaign", __name__, url_prefix="/api/v1/campaigns", description="Operations on campaigns"
 )
 
 

@@ -20,7 +20,7 @@ from .schemas import (
 blp = Blueprint(
     "ST_CheckMissingByCampaign",
     __name__,
-    url_prefix="/st_check_missings_by_campaigns",
+    url_prefix="/api/v1/st_check_missings_by_campaigns",
     description="Operations on check missings scheduled task x campaign associations",
 )
 

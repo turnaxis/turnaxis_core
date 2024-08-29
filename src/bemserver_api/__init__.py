@@ -7,8 +7,9 @@ from werkzeug.middleware.profiler import ProfilerMiddleware
 import sys
 import os
 from flask_cors import CORS
+
 # Get the absolute path of the parent directory
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..",".."))
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 # Add the submodule's path to sys.path
 sys.path.insert(0, os.path.join(parent_dir))
@@ -45,9 +46,10 @@ def create_app():
         spec_kwargs={
             "version": API_VERSION,
             "openapi_version": OPENAPI_VERSION,
-        }
+        },
     )
     api.init_app(app)
+
     authentication.auth.init_app(app)
     register_blueprints(api)
 

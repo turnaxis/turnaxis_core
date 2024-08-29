@@ -17,7 +17,7 @@ from .schemas import (
 blp = Blueprint(
     "TimeseriesBySite",
     __name__,
-    url_prefix="/timeseries_by_sites",
+    url_prefix="/api/v1/timeseries_by_sites",
     description="Operations on timeseries x site associations",
 )
 
