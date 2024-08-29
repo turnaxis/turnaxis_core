@@ -8,7 +8,7 @@ from .schemas import MemberSchema, TeamSchema, TeamQueryArgsSchema
 blp = Blueprint(
     "Team",
     __name__,
-    url_prefix="/teams",
+    url_prefix="/api/v1/teams",
     description="Operations on teams",
 )
 

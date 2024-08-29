@@ -14,7 +14,7 @@ from .schemas import TimeseriesPutSchema, TimeseriesQueryArgsSchema, TimeseriesS
 blp = Blueprint(
     "Timeseries",
     __name__,
-    url_prefix="/timeseries",
+    url_prefix="/api/v1/timeseries",
     description="Operations on timeseries",
 )
 

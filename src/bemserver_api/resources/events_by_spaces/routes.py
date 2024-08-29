@@ -18,7 +18,7 @@ from .schemas import (
 blp = Blueprint(
     "EventBySpace",
     __name__,
-    url_prefix="/events_by_spaces",
+    url_prefix="/api/v1/events_by_spaces",
     description="Operations on event x space associations",
 )
 

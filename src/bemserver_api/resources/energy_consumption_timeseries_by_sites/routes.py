@@ -17,7 +17,7 @@ from .schemas import (
 blp = Blueprint(
     "EnergyConsumptionTimeseriesBySite",
     __name__,
-    url_prefix="/energy_consumption_timeseries_by_sites",
+    url_prefix="/api/v1/energy_consumption_timeseries_by_sites",
     description="Operations on energy consumption timeseries x site associations",
 )
 

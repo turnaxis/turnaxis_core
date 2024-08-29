@@ -12,7 +12,7 @@ from bemserver_api.database import db
 from .schemas import EventPutSchema, EventQueryArgsSchema, EventSchema
 
 blp = Blueprint(
-    "Event", __name__, url_prefix="/events", description="Operations on events"
+    "Event", __name__, url_prefix="/api/v1/events", description="Operations on events"
 )
 
 

@@ -18,7 +18,7 @@ from .schemas import (
 blp = Blueprint(
     "EventByBuilding",
     __name__,
-    url_prefix="/events_by_buildings",
+    url_prefix="/api/v1/events_by_buildings",
     description="Operations on event x building associations",
 )
 

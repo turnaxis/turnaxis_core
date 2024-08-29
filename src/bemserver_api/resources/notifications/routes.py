@@ -21,7 +21,7 @@ from .schemas import (
 blp = Blueprint(
     "Notification",
     __name__,
-    url_prefix="/notifications",
+    url_prefix="/api/v1/notifications",
     description="Operations on notifications",
 )
 
