@@ -120,3 +120,18 @@ class DeviceViews(MethodView):
 
         return item
     
+
+@blp.route("/category/<int:id>")
+class DeviceCategoryViews(MethodView):
+    @blp.login_required
+    @blp.etag
+    @blp.response(200, DeviceResponseSchema)
+    def get(self, id):
+        """Get device category by id"""
+        item = DeviceCategory.get_by_id(id)
+
+        if item is None:
+            abort(404)
+
+        return item
+    
