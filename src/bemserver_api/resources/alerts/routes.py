@@ -8,7 +8,7 @@ import marshmallow as ma
 
 
 blp = Blueprint(
-    "Alert", __name__, url_prefix="/alerts", description="Operations on alerts"
+    "Alert", __name__, url_prefix="/api/v1/alerts", description="Operations on alerts"
 )
 
 @blp.route("/")

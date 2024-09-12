@@ -18,7 +18,7 @@ from .schemas import (
 blp = Blueprint(
     "CampaignScope",
     __name__,
-    url_prefix="/campaign_scopes",
+    url_prefix="/api/v1/campaign_scopes",
     description="Operations on campaign scopes",
 )
 

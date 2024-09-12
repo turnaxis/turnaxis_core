@@ -19,7 +19,7 @@ from .schemas import (
 )
 
 blp = Blueprint(
-    "Input/Output", __name__, url_prefix="/io", description="Input/Output operations"
+    "Input/Output", __name__, url_prefix="/api/v1/io", description="Input/Output operations"
 )
 
 

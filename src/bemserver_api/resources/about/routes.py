@@ -8,7 +8,7 @@ from bemserver_api import Blueprint
 from .schemas import AboutSchema
 
 blp = Blueprint(
-    "About", __name__, url_prefix="/about", description="Informations about BEMServer"
+    "About", __name__, url_prefix="/api/v1/about", description="Informations about BEMServer"
 )
 
 

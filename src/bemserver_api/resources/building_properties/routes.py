@@ -17,7 +17,7 @@ from .schemas import (
 blp = Blueprint(
     "BuildingProperty",
     __name__,
-    url_prefix="/building_properties",
+    url_prefix="/api/v1/building_properties",
     description="Operations on building properties",
 )
 

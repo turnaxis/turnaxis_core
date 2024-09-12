@@ -14,7 +14,7 @@ from .schemas import UserGroupQueryArgsSchema, UserGroupSchema
 blp = Blueprint(
     "UserGroup",
     __name__,
-    url_prefix="/user_groups",
+    url_prefix="/api/v1/user_groups",
     description="Operations on users groups",
 )
 

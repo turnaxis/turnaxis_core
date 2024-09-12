@@ -10,7 +10,7 @@ from bemserver_core.authorization import get_current_user
 blp = Blueprint(
     "Team",
     __name__,
-    url_prefix="/teams",
+    url_prefix="/api/v1/teams",
     description="Operations on teams",
 )
 

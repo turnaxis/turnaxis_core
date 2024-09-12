@@ -17,7 +17,7 @@ from .schemas import (
 blp = Blueprint(
     "TimeseriesByStorey",
     __name__,
-    url_prefix="/timeseries_by_storeys",
+    url_prefix="/api/v1/timeseries_by_storeys",
     description="Operations on timeseries x storey associations",
 )
 

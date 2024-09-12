@@ -5,7 +5,7 @@ from bemserver_api import Blueprint
 from bemserver_api.database import db
 from .schemas import ThresholdSchema
 
-blp = Blueprint("Threshold", __name__, url_prefix="/thresholds", description="Operations on thresholds")
+blp = Blueprint("Threshold", __name__, url_prefix="/api/v1/thresholds", description="Operations on thresholds")
 
 @blp.route("/")
 class ThresholdViews(MethodView):

@@ -12,7 +12,7 @@ from bemserver_api.database import db
 from .schemas import BuildingPutSchema, BuildingQueryArgsSchema, BuildingSchema
 
 blp = Blueprint(
-    "Building", __name__, url_prefix="/buildings", description="Operations on buildings"
+    "Building", __name__, url_prefix="/api/v1/buildings", description="Operations on buildings"
 )
 
 

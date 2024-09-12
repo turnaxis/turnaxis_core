@@ -17,7 +17,7 @@ from .schemas import (
 blp = Blueprint(
     "UserGroupByCampaignScope",
     __name__,
-    url_prefix="/user_groups_by_campaign_scopes",
+    url_prefix="/api/v1/user_groups_by_campaign_scopes",
     description="Operations on user group x campaign scope associations",
 )
 
