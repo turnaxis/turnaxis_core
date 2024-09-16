@@ -152,9 +152,9 @@ class MemberViews(MethodView):
             email=email,
             password=item_user.password,
             permission_level="VIEWER",
-            date_joined=date.today(),  
+            date_joined=date.today(),
             team_id=team_id,
-            
+            authorized_locations=new_item.get("authorized_locations", ""),
         )
 
         db.session.add(new_member)
