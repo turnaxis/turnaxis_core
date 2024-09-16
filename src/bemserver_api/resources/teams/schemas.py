@@ -17,8 +17,10 @@ class UserGroupSchema(AutoSchema):
 class MemberSchema(AutoSchema):
     class Meta(AutoSchema.Meta):
         model = Member
+        exclude = ("user_id",)
 
     id = msa.auto_field(dump_only=True)
+    # user_id = msa.auto_field()
     name = msa.auto_field()
     permission_level = msa.auto_field(validate=ma.validate.OneOf(["ADMIN", "VIEWER"]))
     authorized_locations = msa.auto_field()
