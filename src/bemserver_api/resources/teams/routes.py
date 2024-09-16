@@ -1,3 +1,4 @@
+from datetime import date
 from flask.views import MethodView
 from flask_smorest import abort
 from bemserver_api import Blueprint
@@ -104,43 +105,63 @@ class MemberViews(MethodView):
     def post(self, new_item, team_id):
         """Add a member to a team"""
         current_user = get_current_user()
-        team = Team.get_by_id(team_id)
-
-        user_data = {
-            "name": new_item.get("name"),  
-            "email": new_item.get("email"),  
-        }
-
-        item_user = User.new(**user_data)
-        password = new_item.get("password", None)  # Get the password
-
-        if not password:
-            abort(400, message="Password is required.")
-
-        item_user.set_password(password)  # Set the password for the user
-
-        item_user.is_admin = False
-        item_user.is_active = True
-        db.session.add(item_user)
-        db.session.commit()
-
-        if team is None:
-            abort(404, message="Team not found")
 
         # Ensure only admins can add members
         if not current_user.is_admin:
             abort(403, message="Forbidden: Only admins can add members.")
 
-        print(current_user)
+        # Get the team by ID
+        team = Team.get_by_id(team_id)
+        if team is None:
+            abort(404, message="Team not found")
 
-        # Set the default role to VIEWER
-        new_item["team_id"] = team_id
-        new_item["permission_level"] = "VIEWER"
-        created_by=current_user.id
-        item_user=item_user
-        item = Member.new(**new_item)
+        # Check if user already exists by email
+        email = new_item.get("email")
+        existing_user = db.session.query(User).filter_by(email=email).first()
+
+        if existing_user:
+            # if user exists, use their ID to add a new member
+            item_user = existing_user
+            print(f"User already exists: {existing_user}")
+        else:
+            # Create a new user if not found
+            user_data = {
+                "name": new_item.get("name"),  
+                "email": email,  
+            }
+            item_user = User.new(**user_data)
+
+            # Get and validate password
+            password = new_item.get("password", None)
+            if not password:
+                abort(400, message="Password is required.")
+            
+            item_user.set_password(password)
+
+            item_user.is_admin = False  # New member is not an admin by default
+            item_user.is_active = True
+            db.session.add(item_user)
+            db.session.commit()
+
+        print(item_user.id)
+
+        # add the user to the members using ID
+        new_member = Member(
+            user_id=item_user.id,
+            name=new_item.get("name"),
+            email=email,
+            password=item_user.password,
+            permission_level="VIEWER",
+            date_joined=date.today(),  
+            team_id=team_id,
+            
+        )
+
+        db.session.add(new_member)
         db.session.commit()
-        return item
+
+        return new_member
+
     
 
 @blp.route("/members/<int:member_id>")
