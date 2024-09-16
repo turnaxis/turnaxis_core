@@ -11,7 +11,7 @@ from .schemas import EnergySchema
 blp = Blueprint(
     "Energy",
     __name__,
-    url_prefix="/energies",
+    url_prefix="/api/v1/energies",
     description="Operations on energies",
 )
 

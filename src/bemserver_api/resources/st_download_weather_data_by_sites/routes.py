@@ -20,7 +20,7 @@ from .schemas import (
 blp = Blueprint(
     "ST_DownloadWeatherDataBySite",
     __name__,
-    url_prefix="/st_download_weather_data_by_sites",
+    url_prefix="/api/v1/st_download_weather_data_by_sites",
     description=(
         "Operations on download weather data scheduled task x site associations"
     ),

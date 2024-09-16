@@ -14,7 +14,7 @@ from .schemas import EventCategorySchema
 blp = Blueprint(
     "EventCategory",
     __name__,
-    url_prefix="/event_categories",
+    url_prefix="/api/v1/event_categories",
     description="Operations on event categories",
 )
 

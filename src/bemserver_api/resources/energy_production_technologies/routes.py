@@ -11,7 +11,7 @@ from .schemas import EnergyProductionTechnologySchema
 blp = Blueprint(
     "EnergyProductionTechnology",
     __name__,
-    url_prefix="/energy_production_technologies",
+    url_prefix="/api/v1/energy_production_technologies",
     description="Operations on energy production technologies",
 )
 

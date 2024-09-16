@@ -44,7 +44,7 @@ DEGREE_DAYS_EXAMPLE = dedent(
 
 
 blp = Blueprint(
-    "Site", __name__, url_prefix="/sites", description="Operations on sites"
+    "Site", __name__, url_prefix="/api/v1/sites", description="Operations on sites"
 )
 
 

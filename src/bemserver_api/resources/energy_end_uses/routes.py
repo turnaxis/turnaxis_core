@@ -11,7 +11,7 @@ from .schemas import EnergyEndUseSchema
 blp = Blueprint(
     "EnergyEndUse",
     __name__,
-    url_prefix="/energy_end_uses",
+    url_prefix="/api/v1/energy_end_uses",
     description="Operations on energy end uses",
 )
 

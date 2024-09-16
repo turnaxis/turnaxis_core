@@ -169,7 +169,7 @@ def _get_many_timeseries_by_name(campaign, timeseries_ids):
 blp = Blueprint(
     "TimeseriesData",
     __name__,
-    url_prefix="/timeseries_data",
+    url_prefix="/api/v1/timeseries_data",
     description="Operations on timeseries data",
 )
 
@@ -177,7 +177,7 @@ blp = Blueprint(
 blp4c = Blueprint(
     "TimeseriesDataForCampaign",
     __name__,
-    url_prefix="/timeseries_data/campaign/<int:campaign_id>",
+    url_prefix="/api/v1/timeseries_data/campaign/<int:campaign_id>",
     description="Operations on timeseries data for a given campaign",
 )
 

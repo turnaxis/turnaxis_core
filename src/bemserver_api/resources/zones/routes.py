@@ -12,7 +12,7 @@ from bemserver_api.database import db
 from .schemas import ZonePutSchema, ZoneQueryArgsSchema, ZoneSchema
 
 blp = Blueprint(
-    "Zone", __name__, url_prefix="/zones", description="Operations on zones"
+    "Zone", __name__, url_prefix="/api/v1/zones", description="Operations on zones"
 )
 
 

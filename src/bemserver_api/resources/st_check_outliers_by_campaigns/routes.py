@@ -20,7 +20,7 @@ from .schemas import (
 blp = Blueprint(
     "ST_CheckOutliersByCampaign",
     __name__,
-    url_prefix="/st_check_outliers_by_campaigns",
+    url_prefix="/api/v1/st_check_outliers_by_campaigns",
     description="Operations on check outliers scheduled task x campaign associations",
 )
 

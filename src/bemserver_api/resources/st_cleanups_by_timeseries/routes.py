@@ -18,7 +18,7 @@ from .schemas import (
 blp = Blueprint(
     "ST_CleanupByTimeseries",
     __name__,
-    url_prefix="/st_cleanups_by_timeseries",
+    url_prefix="/api/v1/st_cleanups_by_timeseries",
     description="Operations on cleanup scheduled task x timeseries associations",
 )
 
