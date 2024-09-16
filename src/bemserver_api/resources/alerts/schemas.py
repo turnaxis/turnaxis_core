@@ -3,7 +3,7 @@ import marshmallow_sqlalchemy as msa
 
 from bemserver_api import AutoSchema
 from bemserver_core.model.alerts import Alert , AlertType
-
+from bemserver_api.resources.devices.schema import DeviceSchema
 class AlertSchema(AutoSchema):
     class Meta(AutoSchema.Meta):
         model = Alert
@@ -13,7 +13,8 @@ class AlertSchema(AutoSchema):
     threshold_id = msa.auto_field()
     actual_consumption = msa.auto_field()
     timestamp = msa.auto_field()
-    device_id = msa.auto_field()
+    # device_id = msa.auto_field()
+    device = ma.fields.Nested(DeviceSchema(), dump_only=True)
     user_id = msa.auto_field()
     resolved = msa.auto_field()
     resolved_at = msa.auto_field(dump_only=True)
