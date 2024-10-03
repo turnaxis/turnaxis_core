@@ -20,7 +20,8 @@ class TimeseriesSchema(AutoSchema):
 
 class TimeseriesPutSchema(TimeseriesSchema):
     class Meta(TimeseriesSchema.Meta):
-        exclude = ("campaign_id", "campaign_scope_id")
+        pass
+        # exclude = ("campaign_id", "campaign_scope_id")
 
 
 class TimeseriesQueryArgsSchema(Schema):
@@ -28,8 +29,8 @@ class TimeseriesQueryArgsSchema(Schema):
     name = ma.fields.String()
     in_name = ma.fields.String()
     unit_symbol = ma_fields.UnitSymbol()
-    campaign_id = ma.fields.Integer()
-    campaign_scope_id = ma.fields.Integer()
+    # campaign_id = ma.fields.Integer()
+    # campaign_scope_id = ma.fields.Integer()
     user_id = ma.fields.Integer()
     site_id = ma.fields.Int()
     recurse_site_id = ma.fields.Int()
