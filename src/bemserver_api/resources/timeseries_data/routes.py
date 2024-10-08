@@ -98,23 +98,20 @@ STATS_BY_NAME_EXAMPLE = dedent(
 
 PAYLOAD_BY_ID_JSON_EXAMPLE = dedent(
     """\
+    [
     {
-        "1": {
-            "2020-01-01T00:00:00+00:00": 0.1,
-            "2020-01-01T10:00:00+00:00": 0.2,
-            "2020-01-01T20:00:00+00:00": 0.3,
-        },
-        "2": {
-            "2020-01-01T00:00:00+00:00": 1.1,
-            "2020-01-01T10:00:00+00:00": 1.2,
-            "2020-01-01T20:00:00+00:00": 1.3,
-        },
-        "3": {
-            "2020-01-01T00:00:00+00:00": 2.1,
-            "2020-01-01T10:00:00+00:00": 2.2,
-            "2020-01-01T20:00:00+00:00": 2.3,
-        },
-    }"""
+        "timeseries_id": "1",
+        "device_external_id": "A0001",
+        "timestamp": "2020-01-01T00:00:00+00:00",
+        "value": 0.1
+    },
+    {
+        "timeseries_id": "3",
+        "device_external_id": "A0002",
+        "timestamp": "2020-01-01T00:00:00+00:00",
+        "value": 0.2
+    }
+]"""
 )
 
 PAYLOAD_BY_ID_CSV_EXAMPLE = dedent(
@@ -380,11 +377,11 @@ def post(args):
             tsbds_ids = [
                 ts.get_timeseries_by_data_state(data_state).id for ts in timeseries
             ]
-            data_df["timeseries_by_data_state_id"] = tsbds_ids
 
+            data_df["timeseries_by_data_state_id"] = tsbds_ids
             data_rows = [
                 row
-                for row in data_df.reset_index().to_dict(orient="records")
+                for row in data_df.to_dict(orient="records")
                 if pd.notna(row["value"]) and pd.notna(row["device_id"])
             ]
 
