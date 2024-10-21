@@ -134,6 +134,11 @@ class TimeseriesDataBaseQueryArgsSchema(Schema):
             "description": "Data state ID",
         },
     )
+    metric_name = ma.fields.String(required=True,
+                                   metadata={
+                                       "description": "Metric name",
+                                       "example": "temperature"
+                                   })
 
 
 class TimeseriesDataDeleteByIDQueryArgsSchema(

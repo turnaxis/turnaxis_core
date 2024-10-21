@@ -24,7 +24,10 @@ from bemserver_core.model import (
     UserGroup,
     User,
     UserByUserGroup,
-    DeviceCategory
+    DeviceCategory,
+    Device,
+    Building,
+    Site,
 )
 from bemserver_core.authorization import get_current_user
 from bemserver_core.database import db
@@ -229,12 +232,34 @@ def get_aggregate_for_campaign(args):
     # Execute the query and fetch results
     campaign_id = query.first().id
 
+    if campaign_id is None:
+        abort(422, errors={"user": "user is not attached to an organization"})
+
+    devices_query = (
+        db.session.query(Device)
+        .join(Building)
+        .join(Site)
+        .join(Campaign)
+        .filter(Campaign.id == campaign_id)
+    )
+
+    campaign_devices = devices_query.all()
     # Execute the query
 
-    timeseries_query = db.session.query(Timeseries).filter(
-        Timeseries.campaign_id == campaign_id
+    # timeseries_query = db.session.query(Timeseries).filter(
+    #     Timeseries.campaign_id == campaign_id
+    # )
+    # timeseries = timeseries_query.all()
+
+    timeseries_name = args["metric_name"]
+    print(
+        "metrics name ",
+        args["metric_name"],
     )
-    timeseries = timeseries_query.all()
+    timeseries = Timeseries.get_by_name(timeseries_name)
+    print(timeseries)
+    if timeseries is None:
+        abort(422, errors={"query": {"metric_name": "Unknown timeseries name"}})
 
     data_state = _get_data_state(args["data_state"])
 
@@ -255,7 +280,8 @@ def get_aggregate_for_campaign(args):
         resp = tsdjsonio.export_json_bucket_combined(
             args["start_time"],
             args["end_time"],
-            timeseries,
+            [timeseries],
+            campaign_devices,
             data_state,
             args["bucket_width_value"],
             args["bucket_width_unit"],
@@ -335,7 +361,7 @@ def get_aggregate_for_device(args, id):
             convert_to=args.get("convert_to"),
             timezone=args["timezone"],
             col_label="name",
-            device_id=id
+            device_id=id,
         )
         # print(resp)
     return flask.Response(resp, mimetype=mime_type)
@@ -408,6 +434,7 @@ def get_aggregate_for_campaign_by_location(args):
             col_label="name",
         )
     return flask.Response(resp, mimetype=mime_type)
+
 
 @blp.route("/aggregate_by_device_category", methods=("GET",))
 @blp.login_required
@@ -543,7 +570,7 @@ def get_aggregate_for_single_device_category(args, id):
             convert_to=args.get("convert_to"),
             timezone=args["timezone"],
             col_label="name",
-            category_id = id
+            category_id=id,
         )
 
     return flask.Response(resp, mimetype=mime_type)
