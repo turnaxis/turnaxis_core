@@ -357,7 +357,7 @@ def get_aggregate_for_device(args, id):
         resp = tsdcsvio.export_csv_bucket(
             args["start_time"],
             args["end_time"],
-            timeseries,
+            [timeseries],
             data_state,
             args["bucket_width_value"],
             args["bucket_width_unit"],
@@ -416,11 +416,29 @@ def get_aggregate_for_campaign_by_location(args):
 
     # Execute the query and fetch results
     campaign_id = query.first().id
-
-    timeseries_query = db.session.query(Timeseries).filter(
-        Timeseries.campaign_id == campaign_id
+    if campaign_id is None:
+        abort(422, errors={"user": "user is not attached to an organization"})
+    devices_query = (
+        db.session.query(Device)
+        .join(Building)
+        .join(Site)
+        .join(Campaign)
+        .filter(Campaign.id == campaign_id)
     )
-    timeseries = timeseries_query.all()
+    devices = devices_query.all()
+    
+    if devices is None:
+        abort(422, errors={"device": "device not found"})
+    # timeseries_query = db.session.query(Timeseries).filter(
+    #     Timeseries.campaign_id == campaign_id
+    # )
+    # timeseries = timeseries_query.all()
+    timeseries_name = args["metric_name"]
+
+    timeseries = Timeseries.get_by_name(timeseries_name)
+
+    if timeseries is None:
+        abort(422, errors={"query": {"metric_name": "Unknown timeseries name"}})
 
     data_state = _get_data_state(args["data_state"])
 
@@ -441,7 +459,8 @@ def get_aggregate_for_campaign_by_location(args):
         resp = tsdjsonio.export_json_aggregate_by_location(
             args["start_time"],
             args["end_time"],
-            timeseries,
+            [timeseries],
+            devices,
             data_state,
             args["bucket_width_value"],
             args["bucket_width_unit"],
