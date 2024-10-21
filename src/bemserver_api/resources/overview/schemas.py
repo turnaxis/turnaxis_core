@@ -137,7 +137,7 @@ class TimeseriesDataBaseQueryArgsSchema(Schema):
     metric_name = ma.fields.String(required=True,
                                    metadata={
                                        "description": "Metric name",
-                                       "example": "temperature"
+                                       "example": "Voltage"
                                    })
 
 

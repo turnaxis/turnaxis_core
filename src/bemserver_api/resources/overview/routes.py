@@ -505,10 +505,26 @@ def get_aggregate_for_campaign_by_device_category(args):
     # Execute the query and fetch results
     campaign_id = query.first().id
 
-    timeseries_query = db.session.query(Timeseries).filter(
-        Timeseries.campaign_id == campaign_id
+    if campaign_id is None:
+        abort(422, errors={"user": "user is not attached to an organization"})
+    devices_query = (
+        db.session.query(Device)
+        .join(Building)
+        .join(Site)
+        .join(Campaign)
+        .filter(Campaign.id == campaign_id)
     )
-    timeseries = timeseries_query.all()
+    devices = devices_query.all()
+    
+    if devices is None:
+        abort(422, errors={"device": "device not found"})
+    
+    timeseries_name = args["metric_name"]
+
+    timeseries = Timeseries.get_by_name(timeseries_name)
+
+    if timeseries is None:
+        abort(422, errors={"query": {"metric_name": "Unknown timeseries name"}})
 
     data_state = _get_data_state(args["data_state"])
 
@@ -516,7 +532,8 @@ def get_aggregate_for_campaign_by_device_category(args):
         resp = tsdcsvio.export_csv_bucket(
             args["start_time"],
             args["end_time"],
-            timeseries,
+            [timeseries],
+            devices,
             data_state,
             args["bucket_width_value"],
             args["bucket_width_unit"],
@@ -529,7 +546,8 @@ def get_aggregate_for_campaign_by_device_category(args):
         resp = tsdjsonio.export_json_aggregate_by_device_category(
             args["start_time"],
             args["end_time"],
-            timeseries,
+            [timeseries],
+            devices,
             data_state,
             args["bucket_width_value"],
             args["bucket_width_unit"],
@@ -574,10 +592,27 @@ def get_aggregate_for_single_device_category(args, id):
     # Execute the query and fetch results
     campaign_id = query.first().id
 
-    timeseries_query = db.session.query(Timeseries).filter(
-        Timeseries.campaign_id == campaign_id
+    if campaign_id is None:
+        abort(422, errors={"user": "user is not attached to an organization"})
+    devices_query = (
+        db.session.query(Device)
+        .join(Building)
+        .join(Site)
+        .join(Campaign)
+        .filter(Campaign.id == campaign_id)
+        .filter(Device.device_category_id == id)
     )
-    timeseries = timeseries_query.all()
+    devices = devices_query.all()
+    
+    if devices is None:
+        abort(422, errors={"device": "device not found"})
+    
+    timeseries_name = args["metric_name"]
+
+    timeseries = Timeseries.get_by_name(timeseries_name)
+
+    if timeseries is None:
+        abort(422, errors={"query": {"metric_name": "Unknown timeseries name"}})
 
     data_state = _get_data_state(args["data_state"])
 
@@ -598,7 +633,8 @@ def get_aggregate_for_single_device_category(args, id):
         resp = tsdjsonio.export_json_bucket_combined_device_category(
             args["start_time"],
             args["end_time"],
-            timeseries,
+            [timeseries],
+            devices,
             data_state,
             args["bucket_width_value"],
             args["bucket_width_unit"],
