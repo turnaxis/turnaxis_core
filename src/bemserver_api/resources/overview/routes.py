@@ -327,12 +327,29 @@ def get_aggregate_for_device(args, id):
     # Execute the query and fetch results
     campaign_id = query.first().id
 
-    # Execute the query
+    if campaign_id is None:
+        abort(422, errors={"user": "user is not attached to an organization"})
 
-    timeseries_query = db.session.query(Timeseries).filter(
-        Timeseries.campaign_id == campaign_id
+    devices_query = (
+        db.session.query(Device)
+        .join(Building)
+        .join(Site)
+        .join(Campaign)
+        .filter(Campaign.id == campaign_id)
+        .filter(Device.id == id)
     )
-    timeseries = timeseries_query.all()
+
+    device = devices_query.all()
+    print(device)
+    if device is None:
+        abort(422, errors={"device": "device not found"})
+
+    timeseries_name = args["metric_name"]
+
+    timeseries = Timeseries.get_by_name(timeseries_name)
+
+    if timeseries is None:
+        abort(422, errors={"query": {"metric_name": "Unknown timeseries name"}})
 
     data_state = _get_data_state(args["data_state"])
 
@@ -353,7 +370,7 @@ def get_aggregate_for_device(args, id):
         resp = tsdjsonio.export_json_bucket_combined_device(
             args["start_time"],
             args["end_time"],
-            timeseries,
+            [timeseries],
             data_state,
             args["bucket_width_value"],
             args["bucket_width_unit"],
