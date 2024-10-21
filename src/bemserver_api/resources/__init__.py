@@ -67,6 +67,7 @@ from . import (
     devices,
     alerts,
     thresholds,
+    reports,
 )
 
 MODULES = (
@@ -135,6 +136,7 @@ MODULES = (
     devices,
     alerts,
     thresholds,
+    reports,
 )
 
 
