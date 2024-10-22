@@ -361,23 +361,22 @@ def post(args):
             data_df = pd.DataFrame(data_json)
 
             def get_device_id(external_id):
-                device = (
-                    db.session.query(Device.id)
-                    .filter(Device.unique_identifier == external_id)
-                    .scalar()
+                device_query = db.session.query(Device.id).filter(
+                    Device.unique_identifier == external_id
                 )
+                device = device_query.scalar()
+
                 if device is None:
                     return None
 
                 return device
 
             data_df["device_id"] = data_df["device_external_id"].apply(get_device_id)
-            timeseries = Timeseries.get_many_by_id(data_df["timeseries_id"])
 
+            timeseries = data_df["timeseries_id"].apply(Timeseries.get_by_id)
             tsbds_ids = [
                 ts.get_timeseries_by_data_state(data_state).id for ts in timeseries
             ]
-
             data_df["timeseries_by_data_state_id"] = tsbds_ids
             data_rows = [
                 row
