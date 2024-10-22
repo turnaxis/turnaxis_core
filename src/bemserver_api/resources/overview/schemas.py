@@ -52,7 +52,7 @@ class TimeseriesDataGetStatsByIDBaseQueryArgsSchema(
 
 class TimeseriesDataGetStatsByNameBaseQueryArgsSchema(
     # TimeseriesNameListMixinSchema,
-     TimeseriesDataGetStatsBaseQueryArgsSchema
+    TimeseriesDataGetStatsBaseQueryArgsSchema
 ):
     """Timeseries stats by name query parameters"""
 
@@ -134,11 +134,14 @@ class TimeseriesDataBaseQueryArgsSchema(Schema):
             "description": "Data state ID",
         },
     )
-    metric_name = ma.fields.String(required=True,
-                                   metadata={
-                                       "description": "Metric name",
-                                       "example": "Voltage"
-                                   })
+    metric_name = ma.fields.String(
+        # required=True,
+        load_default="Energy",
+        metadata={
+            "description": "Metric name",
+            "example": "Energy",
+        },
+    )
 
 
 class TimeseriesDataDeleteByIDQueryArgsSchema(
@@ -148,7 +151,7 @@ class TimeseriesDataDeleteByIDQueryArgsSchema(
 
 
 class TimeseriesDataDeleteByNameQueryArgsSchema(
-    TimeseriesDataBaseQueryArgsSchema, #TimeseriesNameListMixinSchema
+    TimeseriesDataBaseQueryArgsSchema,  # TimeseriesNameListMixinSchema
 ):
     """Timeseries values DELETE by name query parameters schema"""
 
@@ -201,7 +204,7 @@ class TimeseriesDataGetByIDQueryArgsSchema(
 
 
 class TimeseriesDataGetByNameQueryArgsSchema(
-    TimeseriesDataGetBaseQueryArgsSchema, #TimeseriesNameListMixinSchema
+    TimeseriesDataGetBaseQueryArgsSchema,  # TimeseriesNameListMixinSchema
 ):
     """Timeseries values GET by name query parameters schema"""
 
@@ -259,7 +262,7 @@ class TimeseriesDataGetByIDAggregateQueryArgsSchema(
 
 
 class TimeseriesDataGetByNameAggregateQueryArgsSchema(
-    TimeseriesDataGetAggregateBaseQueryArgsSchema, #TimeseriesNameListMixinSchema
+    TimeseriesDataGetAggregateBaseQueryArgsSchema,  # TimeseriesNameListMixinSchema
 ):
     """Timeseries values aggregate GET by name query parameters schema"""
 
