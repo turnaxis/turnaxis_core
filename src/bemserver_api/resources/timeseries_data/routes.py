@@ -13,7 +13,14 @@ from bemserver_core.exceptions import (
     TimeseriesNotFoundError,
 )
 from bemserver_core.input_output import tsdcsvio, tsdio, tsdjsonio
-from bemserver_core.model import Campaign, Timeseries, TimeseriesDataState
+from bemserver_core.model import (
+    Campaign,
+    Timeseries,
+    TimeseriesDataState,
+    Device,
+    TimeseriesData,
+)
+import sqlalchemy as sqla
 
 from bemserver_api import Blueprint
 
@@ -30,6 +37,8 @@ from .schemas import (
     TimeseriesDataStatsByIDSchema,
     TimeseriesDataStatsByNameSchema,
 )
+import pandas as pd
+import json
 
 STATS_BY_ID_EXAMPLE = dedent(
     """\
@@ -89,23 +98,20 @@ STATS_BY_NAME_EXAMPLE = dedent(
 
 PAYLOAD_BY_ID_JSON_EXAMPLE = dedent(
     """\
+    [
     {
-        "1": {
-            "2020-01-01T00:00:00+00:00": 0.1,
-            "2020-01-01T10:00:00+00:00": 0.2,
-            "2020-01-01T20:00:00+00:00": 0.3,
-        },
-        "2": {
-            "2020-01-01T00:00:00+00:00": 1.1,
-            "2020-01-01T10:00:00+00:00": 1.2,
-            "2020-01-01T20:00:00+00:00": 1.3,
-        },
-        "3": {
-            "2020-01-01T00:00:00+00:00": 2.1,
-            "2020-01-01T10:00:00+00:00": 2.2,
-            "2020-01-01T20:00:00+00:00": 2.3,
-        },
-    }"""
+        "timeseries_id": "1",
+        "device_external_id": "A0001",
+        "timestamp": "2020-01-01T00:00:00+00:00",
+        "value": 0.1
+    },
+    {
+        "timeseries_id": "3",
+        "device_external_id": "A0002",
+        "timestamp": "2020-01-01T00:00:00+00:00",
+        "value": 0.2
+    }
+]"""
 )
 
 PAYLOAD_BY_ID_CSV_EXAMPLE = dedent(
@@ -341,7 +347,9 @@ def post(args):
     data_state = _get_data_state(args["data_state"])
 
     try:
+        # data = flask.request.get_data(cache=True).decode("utf-8")
         data = flask.request.get_data(cache=True).decode("utf-8")
+        data_json = json.loads(data)
     except UnicodeDecodeError as exc:
         abort(422, message=str(exc))
 
@@ -349,7 +357,41 @@ def post(args):
         if mime_type == "text/csv":
             tsdcsvio.import_csv(data, data_state)
         else:
-            tsdjsonio.import_json(data, data_state)
+            # tsdjsonio.import_json(data, data_state)
+            data_df = pd.DataFrame(data_json)
+
+            def get_device_id(external_id):
+                device_query = db.session.query(Device.id).filter(
+                    Device.unique_identifier == external_id
+                )
+                device = device_query.scalar()
+
+                if device is None:
+                    return None
+
+                return device
+
+            data_df["device_id"] = data_df["device_external_id"].apply(get_device_id)
+
+            timeseries = data_df["timeseries_id"].apply(Timeseries.get_by_id)
+            tsbds_ids = [
+                ts.get_timeseries_by_data_state(data_state).id for ts in timeseries
+            ]
+            data_df["timeseries_by_data_state_id"] = tsbds_ids
+            data_rows = [
+                row
+                for row in data_df.to_dict(orient="records")
+                if pd.notna(row["value"]) and pd.notna(row["device_id"])
+            ]
+
+            if not data_rows:
+                return
+            db.session.execute(
+                sqla.dialects.postgresql.insert(
+                    TimeseriesData
+                ).on_conflict_do_nothing(),
+                data_rows,
+            )
     except (TimeseriesNotFoundError, TimeseriesDataIOError) as exc:
         abort(422, message=str(exc))
 
