@@ -244,20 +244,11 @@ def get_aggregate_for_campaign(args):
     )
 
     campaign_devices = devices_query.all()
-    # Execute the query
-
-    # timeseries_query = db.session.query(Timeseries).filter(
-    #     Timeseries.campaign_id == campaign_id
-    # )
-    # timeseries = timeseries_query.all()
 
     timeseries_name = args["metric_name"]
-    print(
-        "metrics name ",
-        args["metric_name"],
-    )
+
     timeseries = Timeseries.get_by_name(timeseries_name)
-    print(timeseries)
+
     if timeseries is None:
         abort(422, errors={"query": {"metric_name": "Unknown timeseries name"}})
 
@@ -426,7 +417,7 @@ def get_aggregate_for_campaign_by_location(args):
         .filter(Campaign.id == campaign_id)
     )
     devices = devices_query.all()
-    
+
     if devices is None:
         abort(422, errors={"device": "device not found"})
     # timeseries_query = db.session.query(Timeseries).filter(
@@ -515,10 +506,10 @@ def get_aggregate_for_campaign_by_device_category(args):
         .filter(Campaign.id == campaign_id)
     )
     devices = devices_query.all()
-    
+
     if devices is None:
         abort(422, errors={"device": "device not found"})
-    
+
     timeseries_name = args["metric_name"]
 
     timeseries = Timeseries.get_by_name(timeseries_name)
@@ -603,10 +594,10 @@ def get_aggregate_for_single_device_category(args, id):
         .filter(Device.device_category_id == id)
     )
     devices = devices_query.all()
-    
+
     if devices is None:
         abort(422, errors={"device": "device not found"})
-    
+
     timeseries_name = args["metric_name"]
 
     timeseries = Timeseries.get_by_name(timeseries_name)
